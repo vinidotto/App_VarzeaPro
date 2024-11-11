@@ -9,9 +9,6 @@ https://docs.djangoproject.com/en/5.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.0/ref/settings/
 """
-import os
-from pathlib import Path
-from dotenv import load_dotenv
 
 from pathlib import Path
 
@@ -22,9 +19,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
-SECRET_KEY = os.environ.get('SECRET_KEY')
-DEBUG = os.environ.get('DEBUG') == 'True'  # Convert string to boolean
-ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS').split(',') # Convert comma-separated string to list
+# SECURITY WARNING: keep the secret key used in production secret!
+SECRET_KEY = 'django-insecure-lh=15a113nhq2#*e#m7#dkv2g3$&+8+ap*vex-0rqb5g_ou(x6'
+
+# SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = True
+
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '719d-177-44-237-205.ngrok-free.app']
 
 
 # Application definition
@@ -81,14 +82,15 @@ WSGI_APPLICATION = 'api.wsgi.application'
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
 # settings.py
+
 DATABASES = {
     'default': {
-        'ENGINE': os.environ.get('DB_ENGINE'),
-        'NAME': os.environ.get('DB_NAME'),
-        'USER': os.environ.get('DB_USER'),
-        'PASSWORD': os.environ.get('DB_PASSWORD'),
-        'HOST': os.environ.get('DB_HOST'),
-        'PORT': os.environ.get('DB_PORT'),
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'app_varzeapro',         
+        'USER': 'postgres',       
+        'PASSWORD': 'postgres',  
+        'HOST': 'localhost',             
+        'PORT': '5432',
     }
 }
 
