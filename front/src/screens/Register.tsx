@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { View, TextInput, Button, StyleSheet, Alert } from 'react-native';
-import { registerUser } from '../api'; 
+import { View, TextInput, StyleSheet, Text, TouchableOpacity, Alert } from 'react-native';
+import { registerUser } from '../api';
 
 const Register: React.FC<{ navigation: any }> = ({ navigation }) => {
   const [email, setEmail] = useState('');
@@ -10,6 +10,7 @@ const Register: React.FC<{ navigation: any }> = ({ navigation }) => {
   const handleRegister = async () => {
     try {
       const data = await registerUser(email, username, password);
+      Alert.alert('Sucesso', 'Conta criada com sucesso!');
       navigation.replace('Home');
     } catch (error: unknown) {
       if (error instanceof Error) {
@@ -22,11 +23,20 @@ const Register: React.FC<{ navigation: any }> = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
+      {/* Header com ícone de usuário */}
+      <View style={styles.header}>
+        <View style={styles.userIconContainer}>
+          <Text style={styles.userIcon}>👤</Text>
+        </View>
+      </View>
+
+      {/* Campos de E-mail, Nome de Usuário e Senha */}
       <TextInput
         style={styles.input}
         placeholder="E-mail"
         value={email}
         onChangeText={setEmail}
+        autoCapitalize="none"
       />
       <TextInput
         style={styles.input}
@@ -41,7 +51,19 @@ const Register: React.FC<{ navigation: any }> = ({ navigation }) => {
         value={password}
         onChangeText={setPassword}
       />
-      <Button title="Registrar" onPress={handleRegister} />
+
+      {/* Botão de Registro */}
+      <TouchableOpacity style={styles.registerButton} onPress={handleRegister}>
+        <Text style={styles.registerButtonText}>Registrar</Text>
+      </TouchableOpacity>
+
+      {/* Link para login */}
+      <View style={styles.loginContainer}>
+        <Text style={styles.loginText}>Já tem uma conta? </Text>
+        <TouchableOpacity onPress={() => navigation.navigate('Login')}>
+          <Text style={styles.loginLink}>Entrar</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 };
@@ -49,15 +71,57 @@ const Register: React.FC<{ navigation: any }> = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#009552',
     justifyContent: 'center',
-    padding: 16,
+    padding: 20,
+  },
+  header: {
+    alignItems: 'center',
+    marginBottom: 40,
+  },
+  userIconContainer: {
+    backgroundColor: '#fff',
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  userIcon: {
+    fontSize: 40,
+    color: '#6200ee',
   },
   input: {
-    height: 40,
-    borderColor: '#ccc',
-    borderWidth: 1,
-    marginBottom: 12,
-    paddingLeft: 8,
+    backgroundColor: '#fff',
+    borderRadius: 25,
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    marginBottom: 15,
+    fontSize: 16,
+  },
+  registerButton: {
+    backgroundColor: 'orange',
+    borderRadius: 25,
+    paddingVertical: 12,
+    alignItems: 'center',
+    marginTop: 10,
+  },
+  registerButtonText: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  loginContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginTop: 20,
+  },
+  loginText: {
+    color: '#fff',
+  },
+  loginLink: {
+    color: '#ffcc00',
+    fontWeight: 'bold',
   },
 });
 

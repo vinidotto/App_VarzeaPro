@@ -5,6 +5,7 @@ class Equipes(models.Model):
     cidade = models.CharField(max_length=100, null=True, blank=True)
     fundacao = models.DateField(null=True, blank=True)
     treinador = models.CharField(max_length=100, null=True, blank=True)
+    logo = models.ImageField(upload_to='equipes/logos/', null=True, blank=True)
 
     def __str__(self):
         return self.nome

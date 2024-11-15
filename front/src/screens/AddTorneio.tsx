@@ -7,7 +7,7 @@ const AddTorneio: React.FC<{ navigation: any }> = ({ navigation }) => {
   const [nome, setNome] = useState('');
   const [dataInicio, setDataInicio] = useState('');
   const [dataFim, setDataFim] = useState('');
-  const [local, setLocal] = useState('');
+  const [localizacao, setLocal] = useState('');
   const [loading, setLoading] = useState(false);
 
   const [isStartDatePickerVisible, setStartDatePickerVisible] = useState(false);
@@ -24,7 +24,7 @@ const AddTorneio: React.FC<{ navigation: any }> = ({ navigation }) => {
   };
 
   const handleAddTorneio = async () => {
-    if (!nome || !dataInicio || !dataFim || !local) {
+    if (!nome || !dataInicio || !dataFim || !localizacao) {
       Alert.alert('Erro', 'Por favor, preencha todos os campos!');
       return;
     }
@@ -33,7 +33,7 @@ const AddTorneio: React.FC<{ navigation: any }> = ({ navigation }) => {
       nome,
       data_inicio: dataInicio,
       data_fim: dataFim,
-      localizacao: local,  // Alterado de 'local' para 'localizacao'
+      localizacao: localizacao, 
     });
   
     setLoading(true);
@@ -42,7 +42,7 @@ const AddTorneio: React.FC<{ navigation: any }> = ({ navigation }) => {
         nome,
         data_inicio: dataInicio,
         data_fim: dataFim,
-        localizacao: local,  
+        localizacao: localizacao,  
       });
   
       Alert.alert('Sucesso', 'Torneio adicionado com sucesso!');
@@ -86,9 +86,9 @@ const AddTorneio: React.FC<{ navigation: any }> = ({ navigation }) => {
 
       <TextInput
         style={styles.input}
-        placeholder="Local"
+        placeholder="localizacao"
         placeholderTextColor="#000"
-        value={local}
+        value={localizacao}
         onChangeText={setLocal}
       />
 

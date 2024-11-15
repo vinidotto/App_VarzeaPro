@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-lh=15a113nhq2#*e#m7#dkv2g3$&+8+ap*vex-0rqb5g_ou(x6
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '719d-177-44-237-205.ngrok-free.app']
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'blindly-dominant-akita.ngrok-free.app']
 
 
 # Application definition
@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'partidas',
     'jogadores',
     'torneios',
+    'django_filters',
     'usuarios'
 ]
 
@@ -57,6 +58,10 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'api.urls'
+
+REST_FRAMEWORK = {
+    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend']
+}
 
 TEMPLATES = [
     {
@@ -132,6 +137,10 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
 STATIC_URL = 'static/'
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
+
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field

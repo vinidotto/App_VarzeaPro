@@ -1,6 +1,6 @@
 import axios, { AxiosError } from 'axios';
 
-const API_URL = 'https://719d-177-44-237-205.ngrok-free.app/api'; 
+const API_URL = 'https://blindly-dominant-akita.ngrok-free.app/api'; 
 
 export type Torneio = {
   nome: string;
@@ -11,23 +11,24 @@ export type Torneio = {
 };
 
 type Equipe = {
+  id: number;
   nome: string;
 };
 
-// Função para listar todos os torneios
-export const fetchTorneios = async (): Promise<Torneio[]> => {
-    try {
-      const response = await fetch(`${API_URL}/torneios/`);
-      if (!response.ok) {
-        throw new Error('Falha ao carregar os torneios');
-      }
-      return await response.json();  
-    } catch (error) {
-      console.error('Erro ao buscar torneios:', error);
-      throw error;
+export const fetchTorneios = async (search?: string): Promise<Torneio[]> => {
+  try {
+    const url = search ? `${API_URL}/torneios/?search=${search}` : `${API_URL}/torneios/`;
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error('Falha ao carregar os torneios');
     }
-  };
-  
+    return await response.json();
+  } catch (error) {
+    console.error('Erro ao buscar torneios:', error);
+    throw error;
+  }
+};
+
 
 // Função para buscar um torneio específico por ID
 export const fetchTorneio = async (id: number) => {
@@ -124,19 +125,16 @@ export const registerUser = async (email: string, username: string, password: st
       password,
     });
 
-    // Verifica se o status é 201, caso contrário, trata o erro
     if (response.status === 201) {
-      return response.data; // Retorna os dados do usuário criado
+      return response.data; 
     } else {
       throw new Error('Falha ao criar usuário. Status inesperado: ' + response.status);
     }
 
   } catch (error: unknown) {
     if (axios.isAxiosError(error)) {
-      // Verifica se há detalhes de erro no corpo da resposta
       throw new Error(error.response?.data.detail || 'Erro ao registrar');
     } else {
-      // Erro de rede ou outro erro não capturado
       throw new Error('Erro de rede. Tente novamente.');
     }
   }
@@ -170,14 +168,28 @@ function getAuthToken() {
 }
 
 
-export const createEquipe = async (torneioId: number, nomeEquipe: string) => {
+export const createEquipeParaTorneio = async (torneioId: number, equipeData: { nome: string; cidade: string; treinador: string; fundacao: string }) => {
   try {
-    const response = await axios.post(`${API_URL}/equipes/create-for-torneio/${torneioId}/`, {
-      nome: nomeEquipe,
+    const response = await fetch(`${API_URL}/equipes/create-for-torneio/${torneioId}/`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        nome: equipeData.nome,           
+        cidade: equipeData.cidade,       
+        treinador: equipeData.treinador, 
+        fundacao: equipeData.fundacao,  
+      }),
     });
-    return response.data;
+
+    if (!response.ok) {
+      throw new Error('Erro ao criar a equipe');
+    }
+
+    return await response.json();
   } catch (error) {
-    throw new Error('Erro ao criar a equipe');
+    throw error;
   }
 };
 
@@ -193,11 +205,68 @@ export const fetchProximasPartidas = async (torneioId: number) => {
   }
 };
 
+// Função para buscar todas as equipes cadastradas
+export const fetchEquipes = async (): Promise<Equipe[]> => {
+  try {
+    const response = await axios.get(`${API_URL}/equipes/`);
+    return response.data; // Retorna a lista de equipes
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      throw new Error('Erro ao buscar equipes: ' + error.message);
+    } else {
+      throw new Error('Erro desconhecido ao buscar equipes.');
+    }
+  }
+};
+
+// Upload da logo
+export const uploadEquipeLogo = async (equipeId: number, formData: FormData) => {
+  const response = await fetch(`${API_URL}/equipes/${equipeId}/upload-logo`, {
+    method: 'POST',
+    body: formData,
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error('Erro ao fazer upload da logo');
+  }
+
+  return response.json();
+};
+
+
+// Equipe by ID
+export const fetchEquipeDetails = async (id: number): Promise<Equipe> => {
+  try {
+    const response = await axios.get(`${API_URL}/equipes/${id}/`);
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      throw new Error('Erro ao buscar detalhes da equipe: ' + error.message);
+    } else {
+      throw new Error('Erro desconhecido ao buscar detalhes da equipe.');
+    }
+  }
+};
+
 
 // Buscar as equipes de um torneio específico
 export const fetchEquipesPorTorneio = async (torneioId: number) => {
   try {
     const response = await axios.get(`${API_URL}/equipes/por-torneio/${torneioId}/`);
+    return response.data;
+  } catch (error) {
+    throw new Error('Erro ao buscar equipes');
+  }
+};
+
+
+// Buscar os torneios de uma equipe específica
+export const fetchTorneiosPorEquipe = async (EquipeId: number) => {
+  try {
+    const response = await axios.get(`${API_URL}/equipes/${EquipeId}/torneios/`);
     return response.data;
   } catch (error) {
     throw new Error('Erro ao buscar equipes');

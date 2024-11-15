@@ -23,7 +23,6 @@ class UsuarioSerializer(serializers.ModelSerializer):
         return user
 
     def update(self, instance, validated_data):
-        # Atualização de outros campos
         instance.username = validated_data.get('username', instance.username)
         instance.email = validated_data.get('email', instance.email)
         instance.nome_completo = validated_data.get('nome_completo', instance.nome_completo)

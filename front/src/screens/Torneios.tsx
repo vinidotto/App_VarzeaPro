@@ -1,7 +1,17 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { View, Text, Button, FlatList, TouchableOpacity, Alert, StyleSheet, Image } from 'react-native';
+import {
+  View,
+  Text,
+  Button,
+  FlatList,
+  TouchableOpacity,
+  Alert,
+  StyleSheet,
+  Image,
+  TextInput,
+} from 'react-native';
 import { fetchTorneios, deleteTorneio } from '../api';
-import { FontAwesome } from '@expo/vector-icons';  
+import { FontAwesome } from '@expo/vector-icons';
 
 type Torneio = {
   nome: string;
@@ -22,12 +32,19 @@ const Home: React.FC<HomeProps> = ({ navigation }) => {
   const [torneios, setTorneios] = useState<Torneio[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [saved, setSaved] = useState<number[]>([]);
+  const [search, setSearch] = useState<string>('');
+
+  // Função para formatar a data no padrão brasileiro
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return new Intl.DateTimeFormat('pt-BR').format(date);
+  };
 
   // Função para buscar os torneios da API
-  const fetchTorneiosData = async () => {
+  const fetchTorneiosData = async (searchTerm?: string) => {
     setLoading(true);
     try {
-      const data: Torneio[] = await fetchTorneios();
+      const data: Torneio[] = await fetchTorneios(searchTerm);
       if (Array.isArray(data)) {
         setTorneios(data);
       } else {
@@ -45,7 +62,7 @@ const Home: React.FC<HomeProps> = ({ navigation }) => {
     setLoading(true);
     try {
       await deleteTorneio(torneioId);
-      fetchTorneiosData(); 
+      fetchTorneiosData();
     } catch (error) {
       Alert.alert('Erro', 'Não foi possível deletar o torneio.');
     } finally {
@@ -55,22 +72,26 @@ const Home: React.FC<HomeProps> = ({ navigation }) => {
 
   // Carregar torneios e configurar o listener
   useEffect(() => {
-    fetchTorneiosData(); 
-    const unsubscribe = navigation.addListener('focus', fetchTorneiosData);
+    fetchTorneiosData();
+    const unsubscribe = navigation.addListener('focus', () => fetchTorneiosData(search));
     return unsubscribe;
-  }, [navigation]);
+  }, [navigation, search]);
 
   // Função para marcar ou desmarcar como favorito
-  const handleSave = useCallback((torneioId: number) => {
-    setSaved((prevSaved) => {
-      if (prevSaved.includes(torneioId)) {
-        return prevSaved.filter(id => id !== torneioId);
-      } else {
-        return [...prevSaved, torneioId];
-      }
-    });
-  }, [saved]);
+  const handleSave = useCallback(
+    (torneioId: number) => {
+      setSaved((prevSaved) => {
+        if (prevSaved.includes(torneioId)) {
+          return prevSaved.filter((id) => id !== torneioId);
+        } else {
+          return [...prevSaved, torneioId];
+        }
+      });
+    },
+    [saved]
+  );
 
+  // Função de renderização do item
   const renderTorneio = ({ item }: { item: Torneio }) => {
     if (!item || !item.id) return null;
 
@@ -94,14 +115,14 @@ const Home: React.FC<HomeProps> = ({ navigation }) => {
         </View>
 
         <Image
-          source={{ uri: 'https://via.placeholder.com/200x120' }}  
+          source={require('../../assets/torneio-bg.png')}
           style={styles.cardImg}
         />
 
         <View style={styles.cardBody}>
           <Text style={styles.cardTitle}>{item.nome}</Text>
-          <Text style={styles.cardDates}>Início: {item.data_inicio}</Text>
-          <Text style={styles.cardDates}>Fim: {item.data_fim}</Text>
+          <Text style={styles.cardDates}>Início: {formatDate(item.data_inicio)}</Text>
+          <Text style={styles.cardDates}>Fim: {formatDate(item.data_fim)}</Text>
           <Text style={styles.cardLocation}>Localização: {item.localizacao}</Text>
 
           <View style={styles.buttonContainer}>
@@ -125,6 +146,15 @@ const Home: React.FC<HomeProps> = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
+      <TextInput
+        style={styles.searchInput}
+        placeholder="Buscar torneios..."
+        value={search}
+        onChangeText={(text) => {
+          setSearch(text);
+          fetchTorneiosData(text);
+        }}
+      />
       <Button
         color="green"
         title="Adicionar Torneio"
@@ -136,7 +166,10 @@ const Home: React.FC<HomeProps> = ({ navigation }) => {
         keyExtractor={(item) => item.id.toString()}
         renderItem={renderTorneio}
         refreshing={loading}
-        onRefresh={fetchTorneiosData}
+        onRefresh={() => fetchTorneiosData(search)}
+        ListEmptyComponent={() => (
+          <Text style={styles.emptyText}>Nenhum torneio encontrado.</Text>
+        )}
       />
     </View>
   );
@@ -146,6 +179,14 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
+  },
+  searchInput: {
+    height: 40,
+    borderColor: '#ccc',
+    borderWidth: 1,
+    borderRadius: 8,
+    marginBottom: 10,
+    paddingHorizontal: 10,
   },
   card: {
     padding: 10,
@@ -184,6 +225,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     marginTop: 10,
     gap: 5,
+  },
+  emptyText: {
+    textAlign: 'center',
+    color: '#888',
+    marginTop: 20,
   },
 });
 
