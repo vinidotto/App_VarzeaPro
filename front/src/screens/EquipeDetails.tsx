@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, ActivityIndicator, StyleSheet, FlatList, Image, TouchableOpacity } from 'react-native';
+import { View, Text, ActivityIndicator, StyleSheet, FlatList, Image } from 'react-native';
 import { RouteProp } from '@react-navigation/native';
-import { launchImageLibrary } from 'react-native-image-picker';
 import { RootStackParamList } from '../../App';
-import { fetchEquipeDetails, fetchTorneiosPorEquipe, uploadEquipeLogo } from '../api';
+import { fetchEquipeDetails, fetchTorneiosPorEquipe } from '../api';
 
 export type Equipe = {
   id: number;
@@ -11,7 +10,7 @@ export type Equipe = {
   cidade: string;
   fundacao: string;
   treinador: string;
-  logo: string| null;
+  logo: string | null; 
 };
 
 type EquipeDetailsProps = {
@@ -29,9 +28,13 @@ const EquipeDetails: React.FC<EquipeDetailsProps> = ({ route }) => {
     const loadEquipeDetails = async () => {
       try {
         const data = await fetchEquipeDetails(equipeId);
-        setEquipe(data as Equipe);
-        const torneiosData = await fetchTorneiosPorEquipe(equipeId);
-        setTorneios(torneiosData);
+        if (data) {
+          setEquipe(data as Equipe);
+          const torneiosData = await fetchTorneiosPorEquipe(equipeId);
+          setTorneios(torneiosData);
+        } else {
+          setError('Equipe não encontrada');
+        }
       } catch (err) {
         setError('Erro ao carregar detalhes da equipe');
       } finally {
@@ -42,35 +45,6 @@ const EquipeDetails: React.FC<EquipeDetailsProps> = ({ route }) => {
     loadEquipeDetails();
   }, [equipeId]);
 
-  const handleLogoUpload = async () => {
-    try {
-      const result = await launchImageLibrary({
-        mediaType: 'photo',
-        quality: 1,
-      });
-  
-      if (!result.didCancel && result.assets && result.assets.length > 0) {
-        const file = result.assets[0];
-        if (file.uri && equipe) {
-          const formData = new FormData();
-  
-          formData.append('logo', {
-            uri: file.uri,
-            name: file.fileName || 'logo.jpg',
-            type: file.type || 'image/jpeg',
-          } as unknown as Blob); // Conversão explícita para Blob
-  
-          // Enviar a logo para o servidor
-          await uploadEquipeLogo(equipe.id, formData);
-  
-          setEquipe({ ...equipe, logo: file.uri });
-        }
-      }
-    } catch (err) {
-      setError('Erro ao fazer upload da logo');
-    }
-  };
-  
   if (loading) {
     return <ActivityIndicator size="large" color="#0000ff" />;
   }
@@ -83,21 +57,13 @@ const EquipeDetails: React.FC<EquipeDetailsProps> = ({ route }) => {
     <View style={styles.container}>
       {equipe ? (
         <>
-          {/* Seção da logo */}
-          <TouchableOpacity onPress={handleLogoUpload}>
+          {equipe.logo && (
             <Image
-              source={
-                equipe.logo
-                  ? { uri: equipe.logo }
-                  :require('../../assets/placeholder-logo.png')
-
-              }
+              source={{ uri: equipe.logo }}
               style={styles.logo}
             />
-            <Text style={styles.uploadText}>Toque para alterar a logo</Text>
-          </TouchableOpacity>
+          )}
 
-          {/* Informações da equipe */}
           <Text style={styles.title}>{equipe.nome}</Text>
           <Text style={styles.info}>
             <Text style={styles.bold}>Cidade:</Text> {equipe.cidade}
@@ -109,7 +75,6 @@ const EquipeDetails: React.FC<EquipeDetailsProps> = ({ route }) => {
             <Text style={styles.bold}>Treinador:</Text> {equipe.treinador}
           </Text>
 
-          {/* Lista de torneios */}
           <Text style={styles.subtitle}>Torneios:</Text>
           {torneios.length > 0 ? (
             <FlatList
@@ -146,12 +111,6 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     borderWidth: 2,
     borderColor: '#ddd',
-  },
-  uploadText: {
-    textAlign: 'center',
-    color: '#007BFF',
-    fontSize: 14,
-    marginBottom: 10,
   },
   title: {
     fontSize: 24,

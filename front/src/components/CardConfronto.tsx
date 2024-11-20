@@ -1,6 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { Text, View, ScrollView, StyleSheet, Image } from 'react-native';
-import { fetchProximasPartidas } from '../api';
+import { Text, View, ScrollView, StyleSheet, Image, TouchableOpacity } from 'react-native';
+import EditConfrontoModal from './EditConfrontoModal';
+import { fetchProximasPartidas, updatePartida } from '../api';
+
+const BASE_URL = 'https://blindly-dominant-akita.ngrok-free.app';
+
 
 type Equipe = {
   id: number;
@@ -22,17 +26,15 @@ type Partida = {
   Equipe_visitante: Equipe;
 };
 
-const BASE_URL = 'https://blindly-dominant-akita.ngrok-free.app';
-
 const PartidasList: React.FC<{ torneioId: number }> = ({ torneioId }) => {
   const [partidas, setPartidas] = useState<Partida[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedPartida, setSelectedPartida] = useState<Partida | null>(null);
 
   useEffect(() => {
     const loadPartidas = async () => {
       try {
         const data = await fetchProximasPartidas(torneioId);
-        console.log('Resposta da API:', data);
         setPartidas(data);
       } catch (error) {
         console.error('Erro ao buscar partidas:', error);
@@ -44,6 +46,19 @@ const PartidasList: React.FC<{ torneioId: number }> = ({ torneioId }) => {
     loadPartidas();
   }, [torneioId]);
 
+  const handleSavePartida = async (updatedPartida: Partida) => {
+    try {
+      await updatePartida(updatedPartida.id, updatedPartida); // Atualiza a API
+      setPartidas((prev) =>
+        prev.map((partida) =>
+          partida.id === updatedPartida.id ? updatedPartida : partida
+        )
+      );
+    } catch (error) {
+      console.error('Erro ao atualizar partida:', error);
+    }
+  };
+
   if (loading) {
     return <Text style={styles.loading}>Carregando...</Text>;
   }
@@ -54,13 +69,17 @@ const PartidasList: React.FC<{ torneioId: number }> = ({ torneioId }) => {
         <Text style={styles.noMatches}>Não há partidas disponíveis.</Text>
       ) : (
         partidas.map((partida) => (
-          <View key={partida.id} style={styles.card}>
+          <TouchableOpacity
+            key={partida.id}
+            style={styles.card}
+            onPress={() => setSelectedPartida(partida)} // Abre a modal para edição
+          >
             <View style={styles.teams}>
               <View style={styles.team}>
                 {partida.Equipe_casa.logo_url ? (
-                  <Image 
-                    source={{ uri: `${BASE_URL}${partida.Equipe_casa.logo_url}` }} 
-                    style={styles.logo} 
+                  <Image
+                    source={{ uri: `${BASE_URL}${partida.Equipe_casa.logo_url}` }}
+                    style={styles.logo}
                   />
                 ) : (
                   <Text>Logo indisponível</Text>
@@ -72,14 +91,13 @@ const PartidasList: React.FC<{ torneioId: number }> = ({ torneioId }) => {
                 <Text style={styles.scoreText}>
                   {partida.gols_Equipe_casa} : {partida.gols_Equipe_visitante}
                 </Text>
-                <Text style={styles.status}>Encerrado</Text>
               </View>
 
               <View style={styles.team}>
                 {partida.Equipe_visitante.logo_url ? (
-                  <Image 
-                    source={{ uri: `${BASE_URL}${partida.Equipe_visitante.logo_url}` }} 
-                    style={styles.logo} 
+                  <Image
+                    source={{ uri: `${BASE_URL}${partida.Equipe_visitante.logo_url}` }}
+                    style={styles.logo}
                   />
                 ) : (
                   <Text>Logo indisponível</Text>
@@ -99,8 +117,16 @@ const PartidasList: React.FC<{ torneioId: number }> = ({ torneioId }) => {
                 minute: '2-digit',
               })}
             </Text>
-          </View>
+          </TouchableOpacity>
         ))
+      )}
+      {selectedPartida && (
+        <EditConfrontoModal
+          visible={!!selectedPartida}
+          partida={selectedPartida}
+          onClose={() => setSelectedPartida(null)}
+          onSave={handleSavePartida}
+        />
       )}
     </ScrollView>
   );
@@ -142,24 +168,24 @@ const styles = StyleSheet.create({
   },
   team: {
     alignItems: 'center',
-    flex: 1, // Permite que as equipes tenham tamanho proporcional
+    flex: 1, 
   },
   logo: {
-    width: 50, // Tamanho consistente para as logos
+    width: 50,
     height: 50,
     marginBottom: 8,
-    resizeMode: 'contain', // Ajusta a imagem sem cortar
+    resizeMode: 'contain',
   },
   teamName: {
     fontSize: 14,
     textAlign: 'center',
     fontWeight: '600',
-    flexWrap: 'wrap', // Permite quebrar o texto para nomes longos
+    flexWrap: 'wrap', 
   },
   score: {
     justifyContent: 'center',
     alignItems: 'center',
-    marginHorizontal: 16, // Espaçamento entre o placar e os times
+    marginHorizontal: 16, 
   },
   scoreText: {
     fontSize: 24,

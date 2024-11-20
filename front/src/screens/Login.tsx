@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { View, TextInput, Button, StyleSheet, Text, TouchableOpacity, Image, Alert } from 'react-native';
+import { View, TextInput, StyleSheet, Text, TouchableOpacity, Alert } from 'react-native';
 import { loginUser } from '../api';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Login: React.FC<{ navigation: any }> = ({ navigation }) => {
   const [email, setEmail] = useState('');
@@ -10,9 +11,18 @@ const Login: React.FC<{ navigation: any }> = ({ navigation }) => {
   const handleLogin = async () => {
     setLoading(true);
     try {
-      const user = await loginUser(email, password);
-      Alert.alert('Sucesso', 'Login realizado com sucesso!');
-      navigation.replace('Home');
+      const user = await loginUser(email, password);  // Certifique-se de que a função retorna os dois tokens
+      console.log('Usuário autenticado:', user);  // Verifique o usuário retornado
+      
+      // Verifique se o acesso foi bem-sucedido e armazene os tokens no AsyncStorage
+      if (user && user.access && user.refresh) {
+        await AsyncStorage.setItem('auth_token', user.access);
+        await AsyncStorage.setItem('refresh_token', user.refresh);
+        Alert.alert('Sucesso', 'Login realizado com sucesso!');
+        navigation.replace('Home');
+      } else {
+        throw new Error('Tokens de autenticação não encontrados.');
+      }
     } catch (error) {
       if (error instanceof Error) {
         Alert.alert('Erro', error.message);
@@ -23,7 +33,7 @@ const Login: React.FC<{ navigation: any }> = ({ navigation }) => {
       setLoading(false);
     }
   };
-
+  
   return (
     <View style={styles.container}>
       {/* Header com ícone de usuário */}
@@ -40,6 +50,7 @@ const Login: React.FC<{ navigation: any }> = ({ navigation }) => {
         value={email}
         onChangeText={setEmail}
         autoCapitalize="none"
+        keyboardType="email-address"
       />
       <TextInput
         style={styles.input}

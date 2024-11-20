@@ -70,18 +70,3 @@ class EquipeViewSet(viewsets.ModelViewSet):
         ]
 
         return Response(response_data, status=status.HTTP_200_OK)
-
-     # Upload de logo da equipe
-    @action(detail=True, methods=['post'], url_path='upload-logo')
-    def upload_logo(self, request, pk=None):
-        equipe = self.get_object()
-        logo = request.FILES.get('logo')
-
-        if not logo:
-            return Response({"detail": "Nenhuma imagem foi enviada."}, status=status.HTTP_400_BAD_REQUEST)
-
-        # Salvar o arquivo de logo no campo correspondente
-        equipe.logo.save(logo.name, logo)
-        equipe.save()
-
-        return Response({"detail": "Logo enviada com sucesso.", "logo_url": equipe.logo.url}, status=status.HTTP_200_OK)

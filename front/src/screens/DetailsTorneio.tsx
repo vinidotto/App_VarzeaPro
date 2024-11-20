@@ -65,7 +65,6 @@ const DetailsTorneio: React.FC<DetailsTorneioProps> = ({ route }) => {
 
   return (
     <View style={styles.container}>
-      {/* Topo estilizado com imagem de fundo */}
       <ImageBackground
         source={require('../../assets/torneio-bg.png')} 
         style={styles.headerBackground}
@@ -89,19 +88,13 @@ const DetailsTorneio: React.FC<DetailsTorneioProps> = ({ route }) => {
         onPress={() => setEquipeModalVisible(true)} // Abre a modal de criação de equipe
         color="#FFA500"
       />
-
-      {/* Lista de partidas */}
       <PartidasList torneioId={torneioId} />
-
-      {/* Modal de criação de confronto */}
       {modalVisible && (
         <CreateConfrontoModal
           torneioId={torneioId}
           onClose={() => setModalVisible(false)}
         />
       )}
-
-      {/* Modal de criação de equipe */}
       {equipeModalVisible && (
         <CreateEquipeModal
           torneioId={torneioId}

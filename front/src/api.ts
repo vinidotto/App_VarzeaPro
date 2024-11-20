@@ -1,4 +1,5 @@
 import axios, { AxiosError } from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const API_URL = 'https://blindly-dominant-akita.ngrok-free.app/api'; 
 
@@ -14,6 +15,21 @@ type Equipe = {
   id: number;
   nome: string;
 };
+
+
+async function getAuthToken(): Promise<string> {
+  try {
+    const token = await AsyncStorage.getItem('auth_token');
+    if (!token) {
+      throw new Error('Token de autenticação não encontrado');
+    }
+    return token;
+  } catch (error) {
+    console.error('Erro ao obter o token de autenticação:', error);
+    throw error;
+  }
+}
+
 
 export const fetchTorneios = async (search?: string): Promise<Torneio[]> => {
   try {
@@ -142,30 +158,72 @@ export const registerUser = async (email: string, username: string, password: st
 
 export const logoffUser = async () => {
   try {
-    const token = await getAuthToken();
+    const refreshToken = await AsyncStorage.getItem('refresh_token');
+    if (!refreshToken) {
+      throw new Error('Token de atualização não encontrado');
+    }
+
     const response = await axios.post(
       `${API_URL}/usuarios/logoff/`,
-      { refresh_token: token },
+      { refresh_token: refreshToken },
       {
         headers: {
-          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
         },
       }
     );
-    // Limpar o token armazenado após logoff
-    return response.data; // Retorna a mensagem de sucesso
+
+    await AsyncStorage.removeItem('auth_token');
+    await AsyncStorage.removeItem('refresh_token');
+    return response.data;
   } catch (error) {
-    if (error instanceof AxiosError) {
+    if (axios.isAxiosError(error)) {
+      console.error('Erro ao fazer logoff:', error.message);
       throw new Error('Erro ao fazer logoff: ' + error.message);
     } else {
+      console.error('Erro desconhecido ao fazer logoff:', error);
       throw new Error('Erro desconhecido ao fazer logoff.');
     }
   }
 };
+export const updateUserDetails = async (userId: number, userData: { nome_completo?: string; email?: string; telefone?: string; cidade?: string }) => {
+  try {
+    const token = await getAuthToken();
 
-function getAuthToken() {
-  throw new Error('Function not implemented.');
-}
+    const response = await axios.patch(`${API_URL}/usuarios/${userId}/`, userData, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      console.error('Erro ao atualizar detalhes do usuário:', error.message);
+      throw new Error('Erro ao atualizar detalhes do usuário: ' + error.message);
+    } else {
+      console.error('Erro desconhecido ao atualizar detalhes do usuário:', error);
+      throw new Error('Erro desconhecido ao atualizar detalhes do usuário.');
+    }
+  }
+};
+
+
+
+export const getUserDetails = async () => {
+  try {
+    const token = await getAuthToken();
+    const response = await axios.get(`${API_URL}/usuarios/me`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Erro ao buscar detalhes do usuário:', error);
+    throw error;
+  }
+};
 
 
 export const createEquipeParaTorneio = async (torneioId: number, equipeData: { nome: string; cidade: string; treinador: string; fundacao: string }) => {
@@ -218,23 +276,44 @@ export const fetchEquipes = async (): Promise<Equipe[]> => {
     }
   }
 };
+export const updatePartida = async (id: number, partida: any) => {
+  try {
+    const updatedPartida = {
+      ...partida,
+      Equipe_casa: partida.Equipe_casa.id,  // Enviando apenas o ID da equipe
+      Equipe_visitante: partida.Equipe_visitante.id,  // Enviando apenas o ID da equipe
+      data: partida.data,  // A data deve ser um formato ISO 8601
+    };
 
-// Upload da logo
-export const uploadEquipeLogo = async (equipeId: number, formData: FormData) => {
-  const response = await fetch(`${API_URL}/equipes/${equipeId}/upload-logo`, {
-    method: 'POST',
-    body: formData,
-    headers: {
-      'Content-Type': 'multipart/form-data',
-    },
-  });
+    const response = await fetch(`${API_URL}/partidas/${id}/atualiza-partida/`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(updatedPartida),
+    });
 
-  if (!response.ok) {
-    throw new Error('Erro ao fazer upload da logo');
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error('Erro de resposta:', errorData);
+      throw new Error(`Erro ao atualizar partida: ${errorData.detail || 'Erro desconhecido'}`);
+    }
+
+    const responseData = await response.json();
+    return responseData;  // Resposta incluirá as equipes com as logos
+
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error('Erro ao atualizar partida:', error.message); // Acesse a mensagem de erro
+      throw new Error('Erro ao atualizar partida: ' + error.message);
+    } else {
+      // Se não for um erro esperado, trata como erro desconhecido
+      console.error('Erro desconhecido:', error);
+      throw new Error('Erro ao atualizar partida: erro desconhecido');
+    }
   }
-
-  return response.json();
 };
+
 
 
 // Equipe by ID

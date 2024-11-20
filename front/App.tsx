@@ -9,9 +9,10 @@ import Register from './src/screens/Register';
 import AddTorneio from './src/screens/AddTorneio';
 import EditTorneio from './src/screens/EditTorneio';
 import DetailsTorneio from './src/screens/DetailsTorneio';
-import Torneios from './src/screens/Torneios'; 
+import Torneios from './src/screens/Torneios';
 import Equipes from './src/screens/Equipes';
 import EquipeDetails from './src/screens/EquipeDetails';
+import UserDetails from './src/screens/UserDetails';  
 
 export type RootStackParamList = {
   Login: undefined;
@@ -43,7 +44,7 @@ function BottomTabNavigator() {
           title: 'Torneios',
           tabBarIcon: ({ color, size }) => (
             <Image
-              source={require('./assets/trofeu.png')} // Ajuste o caminho conforme necessário
+              source={require('./assets/trofeu.png')}
               style={{ width: size, height: size, tintColor: color }}
             />
           ),
@@ -56,7 +57,20 @@ function BottomTabNavigator() {
           title: 'Equipes',
           tabBarIcon: ({ color, size }) => (
             <Image
-              source={require('./assets/teams.png')} 
+              source={require('./assets/teams.png')}
+              style={{ width: size, height: size, tintColor: color }}
+            />
+          ),
+        }}
+      />
+      <BottomTabs.Screen
+        name="UserDetails"
+        component={UserDetails}  
+        options={{
+          title: 'Perfil',
+          tabBarIcon: ({ color, size }) => (
+            <Image
+              source={require('./assets/user.png')}
               style={{ width: size, height: size, tintColor: color }}
             />
           ),
@@ -100,13 +114,12 @@ export default function App() {
           component={DetailsTorneio}
           options={{ title: 'Detalhes do Torneio' }}
         />
-      <Stack.Screen 
-        name="EquipeDetails" 
-        component={EquipeDetails} 
-        options={{ title: 'Detalhes da Equipe' }}
-      />
+        <Stack.Screen
+          name="EquipeDetails"
+          component={EquipeDetails}
+          options={{ title: 'Detalhes da Equipe' }}
+        />
       </Stack.Navigator>
-      
     </NavigationContainer>
   );
 }
@@ -114,9 +127,5 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-  },
-  content: {
-    flex: 1,
-    textAlign: 'center',
   },
 });
