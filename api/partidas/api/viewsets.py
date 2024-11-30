@@ -35,6 +35,9 @@ class PartidasViewSet(viewsets.ModelViewSet):
         if not equipe_casa or not equipe_visitante:
             return Response({"detail": "Uma ou ambas as equipes não foram encontradas."}, status=status.HTTP_400_BAD_REQUEST)
 
+        if equipe_casa == equipe_visitante:
+            return Response({"detail": "Não é possível criar uma partida entre duas equipes iguais."}, status=status.HTTP_400_BAD_REQUEST)
+
         if equipe_casa not in torneio.times_participantes.all() or equipe_visitante not in torneio.times_participantes.all():
             return Response({"detail": "Uma ou ambas as equipes não estão associadas ao torneio."}, status=status.HTTP_400_BAD_REQUEST)
 

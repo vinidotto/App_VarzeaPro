@@ -100,7 +100,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   registerButton: {
-    backgroundColor: 'orange',
+    backgroundColor: '#E16104',
     borderRadius: 25,
     paddingVertical: 12,
     alignItems: 'center',
@@ -120,7 +120,7 @@ const styles = StyleSheet.create({
     color: '#fff',
   },
   loginLink: {
-    color: '#ffcc00',
+    color: '#E16104',
     fontWeight: 'bold',
   },
 });

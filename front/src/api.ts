@@ -225,6 +225,15 @@ export const getUserDetails = async () => {
   }
 };
 
+// Função para atualizar os detalhes da equipe
+export const atualizarEquipe = async (equipeId: number, equipe: Equipe) => {
+  try {
+    const response = await axios.put(`${API_URL}/equipes/${equipeId}/`, equipe);
+    return response.data;
+  } catch (error) {
+    throw new Error('Erro ao atualizar equipe');
+  }
+};
 
 export const createEquipeParaTorneio = async (torneioId: number, equipeData: { nome: string; cidade: string; treinador: string; fundacao: string }) => {
   try {
@@ -276,6 +285,17 @@ export const fetchEquipes = async (): Promise<Equipe[]> => {
     }
   }
 };
+
+export const vincularEquipeATorneio = async (torneioId: number, equipeId: number) => {
+  try {
+    const response = await axios.post(`${API_URL}/equipes/vincular-equipe/${equipeId}/torneio/${torneioId}/`);
+    return response.data;
+  } catch (error) {
+    throw new Error('Erro ao vincular equipe ao torneio');
+  }
+};
+
+
 export const updatePartida = async (id: number, partida: any) => {
   try {
     const updatedPartida = {

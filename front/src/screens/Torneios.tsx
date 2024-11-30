@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import { fetchTorneios, deleteTorneio } from '../api';
 import { FontAwesome } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 type Torneio = {
   nome: string;
@@ -33,14 +34,13 @@ const Home: React.FC<HomeProps> = ({ navigation }) => {
   const [loading, setLoading] = useState<boolean>(false);
   const [saved, setSaved] = useState<number[]>([]);
   const [search, setSearch] = useState<string>('');
+  const [isAdmin, setIsAdmin] = useState<boolean>(false);
 
-  // Função para formatar a data no padrão brasileiro
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return new Intl.DateTimeFormat('pt-BR').format(date);
   };
 
-  // Função para buscar os torneios da API
   const fetchTorneiosData = async (searchTerm?: string) => {
     setLoading(true);
     try {
@@ -57,7 +57,6 @@ const Home: React.FC<HomeProps> = ({ navigation }) => {
     }
   };
 
-  // Função para excluir o torneio
   const handleDeleteTorneio = async (torneioId: number) => {
     setLoading(true);
     try {
@@ -70,14 +69,20 @@ const Home: React.FC<HomeProps> = ({ navigation }) => {
     }
   };
 
-  // Carregar torneios e configurar o listener
   useEffect(() => {
     fetchTorneiosData();
     const unsubscribe = navigation.addListener('focus', () => fetchTorneiosData(search));
+    
+    const checkAdminStatus = async () => {
+      const isStaff = await AsyncStorage.getItem('is_staff');
+      setIsAdmin(isStaff === 'True');  
+      
+    };
+    checkAdminStatus();
+
     return unsubscribe;
   }, [navigation, search]);
 
-  // Função para marcar ou desmarcar como favorito
   const handleSave = useCallback(
     (torneioId: number) => {
       setSaved((prevSaved) => {
@@ -91,7 +96,6 @@ const Home: React.FC<HomeProps> = ({ navigation }) => {
     [saved]
   );
 
-  // Função de renderização do item
   const renderTorneio = ({ item }: { item: Torneio }) => {
     if (!item || !item.id) return null;
 
@@ -126,18 +130,22 @@ const Home: React.FC<HomeProps> = ({ navigation }) => {
           <Text style={styles.cardLocation}>Localização: {item.localizacao}</Text>
 
           <View style={styles.buttonContainer}>
-            <Button
-              title="Editar"
-              color="#E16104"
-              onPress={() => navigation.navigate('EditTorneio', { torneioId: item.id })}
-              disabled={loading}
-            />
-            <Button
-              title="Excluir"
-              color="red"
-              onPress={() => handleDeleteTorneio(item.id)}
-              disabled={loading}
-            />
+            {isAdmin && (
+              <>
+                <Button
+                  title="Editar"
+                  color="#E16104"
+                  onPress={() => navigation.navigate('EditTorneio', { torneioId: item.id })}
+                  disabled={loading}
+                />
+                <Button
+                  title="Excluir"
+                  color="red"
+                  onPress={() => handleDeleteTorneio(item.id)}
+                  disabled={loading}
+                />
+              </>
+            )}
           </View>
         </View>
       </TouchableOpacity>
@@ -155,12 +163,14 @@ const Home: React.FC<HomeProps> = ({ navigation }) => {
           fetchTorneiosData(text);
         }}
       />
-      <Button
-        color="green"
-        title="Adicionar Torneio"
-        onPress={() => navigation.navigate('AddTorneio')}
-        disabled={loading}
-      />
+      {isAdmin && (
+        <Button
+          color="green"
+          title="Adicionar Torneio"
+          onPress={() => navigation.navigate('AddTorneio')}
+          disabled={loading}
+        />
+      )}
       <FlatList
         data={torneios}
         keyExtractor={(item) => item.id.toString()}

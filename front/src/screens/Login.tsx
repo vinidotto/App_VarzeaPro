@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, TextInput, StyleSheet, Text, TouchableOpacity, Alert } from 'react-native';
+import { View, TextInput, StyleSheet, Text, TouchableOpacity, Alert, Image } from 'react-native';
 import { loginUser } from '../api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -11,12 +11,14 @@ const Login: React.FC<{ navigation: any }> = ({ navigation }) => {
   const handleLogin = async () => {
     setLoading(true);
     try {
-      const user = await loginUser(email, password);  // Certifique-se de que a função retorna os dois tokens
-      console.log('Usuário autenticado:', user);  // Verifique o usuário retornado
+      const user = await loginUser(email, password);  // Certifica de que a função retorna os dois tokens
+      console.log('Usuário autenticado:', user);  // Verifica o usuário retornado
       
-      // Verifique se o acesso foi bem-sucedido e armazene os tokens no AsyncStorage
+      // Verifia se o acesso foi bem-sucedido e armazene os tokens no AsyncStorage
       if (user && user.access && user.refresh) {
         await AsyncStorage.setItem('auth_token', user.access);
+        await AsyncStorage.setItem('is_staff', String(user.is_staff));
+        console.log(user.is_staff)
         await AsyncStorage.setItem('refresh_token', user.refresh);
         Alert.alert('Sucesso', 'Login realizado com sucesso!');
         navigation.replace('Home');
@@ -38,6 +40,10 @@ const Login: React.FC<{ navigation: any }> = ({ navigation }) => {
     <View style={styles.container}>
       {/* Header com ícone de usuário */}
       <View style={styles.header}>
+      <Image
+          source={require('../../assets/logo.png')} 
+          style={styles.cardImg}
+        />
         <View style={styles.userIconContainer}>
           <Text style={styles.userIcon}>👤</Text>
         </View>
@@ -94,8 +100,10 @@ const styles = StyleSheet.create({
     borderRadius: 40,
     justifyContent: 'center',
     alignItems: 'center',
+    marginTop:30,
   },
   userIcon: {
+    marginTop: 10,
     fontSize: 40,
     color: '#6200ee',
   },
@@ -108,11 +116,10 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   loginButton: {
-    backgroundColor: 'orange',
+    backgroundColor: '#E16104',
     borderRadius: 25,
     paddingVertical: 12,
     alignItems: 'center',
-    marginTop: 10,
   },
   loginButtonText: {
     color: '#fff',
@@ -128,8 +135,13 @@ const styles = StyleSheet.create({
     color: '#fff',
   },
   registerLink: {
-    color: '#ffcc00',
+    color: '#E16104',
     fontWeight: 'bold',
+  },
+  cardImg: {
+    width: '100%',
+    height: 120,
+    borderRadius: 8,
   },
 });
 

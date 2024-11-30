@@ -5,6 +5,10 @@ import { fetchProximasPartidas, updatePartida } from '../api';
 
 const BASE_URL = 'https://blindly-dominant-akita.ngrok-free.app';
 
+type PartidasListProps = {
+  torneioId: number;
+  isAdmin: boolean;
+};
 
 type Equipe = {
   id: number;
@@ -26,7 +30,7 @@ type Partida = {
   Equipe_visitante: Equipe;
 };
 
-const PartidasList: React.FC<{ torneioId: number }> = ({ torneioId }) => {
+const PartidasList: React.FC<PartidasListProps> = ({ torneioId, isAdmin }) => {
   const [partidas, setPartidas] = useState<Partida[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedPartida, setSelectedPartida] = useState<Partida | null>(null);
@@ -72,7 +76,7 @@ const PartidasList: React.FC<{ torneioId: number }> = ({ torneioId }) => {
           <TouchableOpacity
             key={partida.id}
             style={styles.card}
-            onPress={() => setSelectedPartida(partida)} // Abre a modal para edição
+            onPress={() => isAdmin && setSelectedPartida(partida)} // Só abre a modal se for admin
           >
             <View style={styles.teams}>
               <View style={styles.team}>
@@ -168,7 +172,7 @@ const styles = StyleSheet.create({
   },
   team: {
     alignItems: 'center',
-    flex: 1, 
+    flex: 1,
   },
   logo: {
     width: 50,
@@ -180,12 +184,12 @@ const styles = StyleSheet.create({
     fontSize: 14,
     textAlign: 'center',
     fontWeight: '600',
-    flexWrap: 'wrap', 
+    flexWrap: 'wrap',
   },
   score: {
     justifyContent: 'center',
     alignItems: 'center',
-    marginHorizontal: 16, 
+    marginHorizontal: 16,
   },
   scoreText: {
     fontSize: 24,

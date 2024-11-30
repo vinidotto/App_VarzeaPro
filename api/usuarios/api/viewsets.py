@@ -41,6 +41,7 @@ class UsuarioViewSet(viewsets.ModelViewSet):
                 return Response({
                     'refresh': str(refresh),
                     'access': str(refresh.access_token),
+                    'is_staff': str(user.is_staff)
                 }, status=status.HTTP_200_OK)
             else:
                 return Response({'detail': 'Credenciais inválidas.'}, status=status.HTTP_401_UNAUTHORIZED)

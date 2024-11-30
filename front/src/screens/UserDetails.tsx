@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ActivityIndicator, Button, TextInput, Alert, ScrollView } from 'react-native';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { getUserDetails, logoffUser, updateUserDetails } from '../api'; 
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 
 type RootStackParamList = {
   UserDetails: undefined;
@@ -29,7 +31,10 @@ const UserDetails: React.FC = () => {
 
   const handleLogoff = async () => {
     try {
-      await logoffUser();
+      await AsyncStorage.removeItem('is_staff');  
+      await AsyncStorage.removeItem('user_token'); 
+  
+      await logoffUser();  
       Alert.alert('Logoff realizado com sucesso');
       navigation.navigate('Login');
     } catch (error) {
@@ -37,7 +42,7 @@ const UserDetails: React.FC = () => {
       Alert.alert('Erro ao fazer logoff');
     }
   };
-
+  
   const handleSave = async () => {
     if (!user?.id) {
       Alert.alert('Erro', 'ID do usuário não encontrado.');

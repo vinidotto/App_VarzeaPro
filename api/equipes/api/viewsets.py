@@ -70,3 +70,21 @@ class EquipeViewSet(viewsets.ModelViewSet):
         ]
 
         return Response(response_data, status=status.HTTP_200_OK)
+
+
+    @action(detail=False, methods=['post'], url_path=r'vincular-equipe/(?P<equipe_id>\d+)/torneio/(?P<torneio_id>\d+)')
+    def vincular_equipe_a_torneio(self, request, equipe_id=None, torneio_id=None):
+        # Busca pela equipe e torneio com os ids fornecidos
+        equipe = Equipes.objects.filter(id=equipe_id).first()
+        torneio = Torneios.objects.filter(id=torneio_id).first()
+        
+        if not equipe:
+            return Response({"detail": "Equipe não encontrada."}, status=status.HTTP_404_NOT_FOUND)
+        
+        if not torneio:
+            return Response({"detail": "Torneio não encontrado."}, status=status.HTTP_404_NOT_FOUND)
+        
+        # Associa a equipe ao torneio
+        torneio.times_participantes.add(equipe)
+
+        return Response({"detail": "Equipe vinculada ao torneio com sucesso."}, status=status.HTTP_200_OK)

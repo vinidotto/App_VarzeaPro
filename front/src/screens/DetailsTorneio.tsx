@@ -6,6 +6,7 @@ import { fetchTorneio } from '../api';
 import PartidasList from '../components/CardConfronto';
 import CreateConfrontoModal from '../components/CreateConfrontoModal';
 import CreateEquipeModal from '../components/CreateEquipeModal';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 type RootStackParamList = {
   DetailsTorneio: { torneioId: number };
@@ -16,6 +17,10 @@ type Torneio = {
   data_inicio: string;
   data_fim: string;
   localizacao: string;
+};
+type PartidasListProps = {
+  torneioId: number;
+  isAdmin: boolean; 
 };
 
 type DetailsTorneioProps = {
@@ -30,6 +35,21 @@ const DetailsTorneio: React.FC<DetailsTorneioProps> = ({ route }) => {
   const [loading, setLoading] = useState<boolean>(true);
   const [modalVisible, setModalVisible] = useState(false);
   const [equipeModalVisible, setEquipeModalVisible] = useState(false); // Controle da visibilidade da modal de criação de equipe
+  const [isAdmin, setIsAdmin] = useState<boolean>(false);
+
+  useEffect(() => {
+    // Função para carregar o status de admin
+    const loadIsAdmin = async () => {
+      try {
+        const isStaff = await AsyncStorage.getItem('is_staff');
+        setIsAdmin(isStaff === 'True'); 
+      } catch (error) {
+        console.error('Erro ao carregar status de admin:', error);
+      }
+    };
+
+    loadIsAdmin();
+  }, []);
 
   useEffect(() => {
     const fetchTorneioData = async () => {
@@ -78,17 +98,24 @@ const DetailsTorneio: React.FC<DetailsTorneioProps> = ({ route }) => {
       </ImageBackground>
 
       {/* Botões */}
-      <Button
-        title="Criar Confronto"
-        onPress={() => setModalVisible(true)}
-        color="#4CAF50"
-      />
-      <Button
-        title="Criar Equipe"
-        onPress={() => setEquipeModalVisible(true)} // Abre a modal de criação de equipe
-        color="#FFA500"
-      />
-      <PartidasList torneioId={torneioId} />
+      {isAdmin && (  // Exibe os botões apenas se o usuário for administrador
+        <>
+          <Button
+            title="Criar Confronto"
+            onPress={() => setModalVisible(true)}
+            color="#4CAF50"
+          />
+          <Button
+            title="Criar Equipe"
+            onPress={() => setEquipeModalVisible(true)} // Abre a modal de criação de equipe
+            color="#FFA500"
+          />
+        </>
+      )}
+
+      {/* Passa o isAdmin para o PartidasList */}
+      <PartidasList torneioId={torneioId} isAdmin={isAdmin} />
+
       {modalVisible && (
         <CreateConfrontoModal
           torneioId={torneioId}

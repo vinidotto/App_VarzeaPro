@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, FlatList, ActivityIndicator, StyleSheet, TouchableOpacity, Button, Modal, Image } from 'react-native';
 import { fetchEquipes } from '../api';
 import CreateEquipeModal from '../components/CreateEquipeModal'; 
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 type Equipe = {
   id: number;
@@ -12,8 +13,6 @@ type Equipe = {
   fundacao: string | null;
   treinador: string | null;
 };
-
-
 
 type EquipesProps = {
   navigation: {
@@ -28,6 +27,7 @@ const Equipes: React.FC<EquipesProps> = ({ navigation }) => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
+  const [isAdmin, setIsAdmin] = useState<boolean>(false); // Estado para verificar se o usuário é admin
 
   useEffect(() => {
     const loadEquipes = async () => {
@@ -40,13 +40,24 @@ const Equipes: React.FC<EquipesProps> = ({ navigation }) => {
         setLoading(false);
       }
     };
-  
+
     loadEquipes();
+
+    // Verifica se o usuário é administrador
+    const checkAdminStatus = async () => {
+      const isStaff = await AsyncStorage.getItem('is_staff');
+      setIsAdmin(isStaff === 'True'); // Verifica se o valor é 'True'
+    };
+
+    checkAdminStatus();
   }, []);
-  
 
   const handleOpenCreateEquipeModal = () => {
-    setModalVisible(true);
+    if (isAdmin) {
+      setModalVisible(true);
+    } else {
+      alert('Você não tem permissão para criar equipes.');
+    }
   };
 
   const handleCloseCreateEquipeModal = () => {
@@ -63,7 +74,9 @@ const Equipes: React.FC<EquipesProps> = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-    <Button title="Criar Equipe" onPress={handleOpenCreateEquipeModal} color="orange" />
+      {isAdmin && ( // Só exibe o botão de criar equipe se o usuário for administrador
+        <Button title="Criar Equipe" onPress={handleOpenCreateEquipeModal} color="orange" />
+      )}
       <FlatList
         data={equipes}
         keyExtractor={(item) => item.id.toString()}
@@ -73,10 +86,10 @@ const Equipes: React.FC<EquipesProps> = ({ navigation }) => {
             onPress={() => navigation.navigate('EquipeDetails', { equipeId: item.id })}
           >
             <View style={styles.equipeInfo}>
-                <Image
-                  source={{ uri: `${BASE_URL}${item.logo_url}` }}
-                  style={styles.logo}
-                />
+              <Image
+                source={{ uri: `${BASE_URL}${item.logo_url}` }}
+                style={styles.logo}
+              />
               <Text style={styles.equipeNome}>{item.nome}</Text>
             </View>
           </TouchableOpacity>
