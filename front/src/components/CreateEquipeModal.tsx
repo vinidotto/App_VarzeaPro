@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, Modal } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, Modal, Platform } from 'react-native';
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import { createEquipeParaTorneio } from '../api';
 
@@ -14,7 +14,7 @@ const CreateEquipeModal: React.FC<CreateEquipeModalProps> = ({ torneioId, onClos
   const [treinador, setTreinador] = useState('');
   const [fundacao, setFundacao] = useState(new Date());
   const [loading, setLoading] = useState(false);
-  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [showDatePicker, setShowDatePicker] = useState<boolean | "date" | "time" | "datetime">(false);
 
   const handleCreateTeam = async () => {
     if (!teamName.trim() || !cidade.trim() || !treinador.trim()) {
@@ -28,7 +28,7 @@ const CreateEquipeModal: React.FC<CreateEquipeModalProps> = ({ torneioId, onClos
         nome: teamName,
         cidade,
         treinador,
-        fundacao: fundacao.toISOString().split('T')[0],
+        fundacao: fundacao.toISOString().split('T')[0], // Armazenar a data no formato YYYY-MM-DD
       });
       Alert.alert('Sucesso', 'Equipe criada com sucesso');
       onClose();
@@ -36,6 +36,30 @@ const CreateEquipeModal: React.FC<CreateEquipeModalProps> = ({ torneioId, onClos
       Alert.alert('Erro', 'Houve um problema ao criar a equipe. Tente novamente mais tarde.');
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Função para exibir o DateTimePicker
+  const showDateTimePicker = () => {
+    if (Platform.OS === 'android') {
+      Alert.alert(
+        "Seleção de Data e Hora",
+        "Deseja selecionar a Data ou a Hora?",
+        [
+          {
+            text: "Data",
+            onPress: () => setShowDatePicker("date"),
+          },
+          {
+            text: "Hora",
+            onPress: () => setShowDatePicker("time"),
+          },
+          { text: "Cancelar", onPress: () => setShowDatePicker(false), style: "cancel" },
+        ],
+        { cancelable: true }
+      );
+    } else {
+      setShowDatePicker("datetime");
     }
   };
 
@@ -72,19 +96,16 @@ const CreateEquipeModal: React.FC<CreateEquipeModalProps> = ({ torneioId, onClos
             autoCapitalize="words"
           />
 
+          {/* Seleção de Data de Fundação */}
           <Text style={styles.label}>Data de Fundação</Text>
-          <TextInput
-            style={styles.input}
-            value={fundacao.toLocaleDateString('pt-BR')}
-            onFocus={() => setShowDatePicker(true)}
-            placeholder="Escolha a data"
-            editable={false}
-          />
+          <TouchableOpacity onPress={showDateTimePicker} style={styles.dateButton}>
+            <Text>{fundacao.toLocaleString()}</Text>
+          </TouchableOpacity>
 
           {showDatePicker && (
             <DateTimePicker
               value={fundacao}
-              mode="date"
+              mode={showDatePicker as "date" | "time" | "datetime"}
               display="default"
               onChange={(event: DateTimePickerEvent, selectedDate?: Date) => {
                 setShowDatePicker(false);
@@ -145,6 +166,12 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     borderColor: '#ccc',
     fontSize: 16,
+  },
+  dateButton: {
+    padding: 10,
+    backgroundColor: '#f0f0f0',
+    borderRadius: 5,
+    marginTop: 5,
   },
   buttonsContainer: {
     flexDirection: 'row',
