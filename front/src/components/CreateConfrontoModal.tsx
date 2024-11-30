@@ -128,8 +128,8 @@ const CreateConfrontoModal: React.FC<CreateConfrontoModalProps> = ({ torneioId, 
 
           {/* Botões */}
           <View style={styles.buttonContainer}>
-            <Button title="Cancelar" onPress={onClose} color="#888" />
-            <Button title="Criar Confronto" onPress={handleCreateConfronto} color="#4CAF50" />
+            <Button title="Cancelar" onPress={onClose} color="red" />
+            <Button title="Criar Confronto" onPress={handleCreateConfronto} color="green" />
           </View>
         </View>
       </View>

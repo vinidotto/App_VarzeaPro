@@ -18,10 +18,6 @@ type Torneio = {
   data_fim: string;
   localizacao: string;
 };
-type PartidasListProps = {
-  torneioId: number;
-  isAdmin: boolean; 
-};
 
 type DetailsTorneioProps = {
   route: RouteProp<RootStackParamList, 'DetailsTorneio'>;

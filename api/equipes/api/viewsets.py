@@ -88,3 +88,17 @@ class EquipeViewSet(viewsets.ModelViewSet):
         torneio.times_participantes.add(equipe)
 
         return Response({"detail": "Equipe vinculada ao torneio com sucesso."}, status=status.HTTP_200_OK)
+    
+    
+    @action(detail=True, methods=['post'], url_path='upload-logo')
+    def upload_logo(self, request, pk=None):
+        equipe = self.get_object()  # Obtém a equipe pelo ID
+        logo = request.FILES.get('logo')  # Obtém o arquivo enviado com a chave 'logo'
+
+        if not logo:
+            return Response({"detail": "Nenhuma imagem enviada."}, status=status.HTTP_400_BAD_REQUEST)
+
+        equipe.logo = logo  
+        equipe.save() 
+
+        return Response({"detail": "Logo atualizada com sucesso.", "logo_url": equipe.logo.url}, status=status.HTTP_200_OK)

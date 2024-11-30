@@ -160,10 +160,10 @@ const styles = StyleSheet.create({
     marginHorizontal: 5,
   },
   createButton: {
-    backgroundColor: '#007bff',
+    backgroundColor: 'green',
   },
   closeButton: {
-    backgroundColor: '#dc3545',
+    backgroundColor: 'red',
   },
   buttonText: {
     color: '#fff',

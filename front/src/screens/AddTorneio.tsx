@@ -63,45 +63,37 @@ const AddTorneio: React.FC<{ navigation: any }> = ({ navigation }) => {
       <TextInput
         style={styles.input}
         placeholder="Nome do Torneio"
-        placeholderTextColor="#000"
+        placeholderTextColor="#7D7D7D"
         value={nome}
         onChangeText={setNome}
       />
 
-      <TouchableOpacity onPress={() => setStartDatePickerVisible(true)}>
-        <View style={styles.datePicker}>
-          <Text style={styles.dateText}>
-            {dataInicio ? dataInicio : 'Selecione a data de início'}
-          </Text>
-        </View>
+      <TouchableOpacity onPress={() => setStartDatePickerVisible(true)} style={styles.datePickerButton}>
+        <Text style={styles.dateText}>
+          {dataInicio ? dataInicio : 'Selecione a data de início'}
+        </Text>
       </TouchableOpacity>
 
-      <TouchableOpacity onPress={() => setEndDatePickerVisible(true)}>
-        <View style={styles.datePicker}>
-          <Text style={styles.dateText}>
-            {dataFim ? dataFim : 'Selecione a data de fim'}
-          </Text>
-        </View>
+      <TouchableOpacity onPress={() => setEndDatePickerVisible(true)} style={styles.datePickerButton}>
+        <Text style={styles.dateText}>
+          {dataFim ? dataFim : 'Selecione a data de fim'}
+        </Text>
       </TouchableOpacity>
 
       <TextInput
         style={styles.input}
-        placeholder="localizacao"
-        placeholderTextColor="#000"
+        placeholder="Localização"
+        placeholderTextColor="#7D7D7D"
         value={localizacao}
         onChangeText={setLocal}
       />
 
-      <TouchableOpacity onPress={handleAddTorneio} disabled={loading}>
-        <View style={styles.button}>
-          <Text style={styles.buttonText}>Adicionar Torneio</Text>
-        </View>
+      <TouchableOpacity onPress={handleAddTorneio} disabled={loading} style={styles.button}>
+        <Text style={styles.buttonText}>Adicionar Torneio</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity onPress={() => navigation.goBack()}>
-        <View style={styles.button}>
-          <Text style={styles.buttonText}>Cancelar</Text>
-        </View>
+      <TouchableOpacity onPress={() => navigation.goBack()} style={styles.cancelButton}>
+        <Text style={styles.buttonText}>Cancelar</Text>
       </TouchableOpacity>
 
       <DateTimePickerModal
@@ -125,38 +117,53 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'center',
-    padding: 16,
-    backgroundColor: '#fff',
+    padding: 20,
+    backgroundColor: '#F7F7F7', 
   },
   input: {
-    height: 40,
-    borderColor: '#000',
+    height: 45,
+    borderColor: '#DDDDDD',
     borderWidth: 1,
-    marginBottom: 12,
-    paddingLeft: 8,
-    color: '#000',
+    marginBottom: 15,
+    paddingLeft: 10,
+    fontSize: 16,
+    color: '#333',
+    borderRadius: 8,
   },
-  datePicker: {
-    height: 40,
-    borderColor: '#000',
+  datePickerButton: {
+    height: 45,
+    borderColor: '#DDDDDD',
     borderWidth: 1,
-    marginBottom: 12,
+    marginBottom: 15,
     justifyContent: 'center',
-    paddingLeft: 8,
+    alignItems: 'flex-start',
+    paddingLeft: 10,
+    borderRadius: 8,
   },
   dateText: {
-    color: '#000',
+    color: '#7D7D7D', 
+    fontSize: 16,
   },
   button: {
-    backgroundColor: '#000',
-    padding: 10,
+    backgroundColor: '#4CAF50', 
+    padding: 12,
     marginVertical: 8,
+    borderRadius: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  cancelButton: {
+    backgroundColor: '#F44336', 
+    padding: 12,
+    marginVertical: 8,
+    borderRadius: 8,
     justifyContent: 'center',
     alignItems: 'center',
   },
   buttonText: {
-    color: '#fff',
+    color: '#FFF',
     fontWeight: 'bold',
+    fontSize: 16,
   },
 });
 

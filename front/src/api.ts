@@ -300,9 +300,9 @@ export const updatePartida = async (id: number, partida: any) => {
   try {
     const updatedPartida = {
       ...partida,
-      Equipe_casa: partida.Equipe_casa.id,  // Enviando apenas o ID da equipe
-      Equipe_visitante: partida.Equipe_visitante.id,  // Enviando apenas o ID da equipe
-      data: partida.data,  // A data deve ser um formato ISO 8601
+      Equipe_casa: partida.Equipe_casa.id,  
+      Equipe_visitante: partida.Equipe_visitante.id,  
+      data: partida.data, 
     };
 
     const response = await fetch(`${API_URL}/partidas/${id}/atualiza-partida/`, {
@@ -371,6 +371,21 @@ export const fetchTorneiosPorEquipe = async (EquipeId: number) => {
     throw new Error('Erro ao buscar equipes');
   }
 };
+
+
+export const uploadLogo = async (equipeId: number, formData: FormData) => {
+  try {
+    const response = await axios.post(`${API_URL}/equipes/${equipeId}/upload-logo/`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return response.data;
+  } catch (error) {
+    throw new Error('Erro ao enviar a logo');
+  }
+};
+
 
 // Criar o confronto (partida)
 export const createConfronto = async (torneioId: number, equipeCasaId: number, equipeVisitanteId: number, data: string, localizacao: string) => {

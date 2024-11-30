@@ -25,32 +25,38 @@ const BASE_URL = 'https://blindly-dominant-akita.ngrok-free.app';
 const Equipes: React.FC<EquipesProps> = ({ navigation }) => {
   const [equipes, setEquipes] = useState<Equipe[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [refreshing, setRefreshing] = useState<boolean>(false); 
   const [error, setError] = useState<string | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
-  const [isAdmin, setIsAdmin] = useState<boolean>(false); // Estado para verificar se o usuário é admin
+  const [isAdmin, setIsAdmin] = useState<boolean>(false);
+
+  const loadEquipes = async () => {
+    try {
+      const data = await fetchEquipes();
+      setEquipes(data as Equipe[]);
+    } catch (err) {
+      setError('Erro ao carregar equipes');
+    } finally {
+      setLoading(false);
+      setRefreshing(false); 
+    }
+  };
 
   useEffect(() => {
-    const loadEquipes = async () => {
-      try {
-        const data = await fetchEquipes();
-        setEquipes(data as Equipe[]);  
-      } catch (err) {
-        setError('Erro ao carregar equipes');
-      } finally {
-        setLoading(false);
-      }
-    };
-
     loadEquipes();
 
-    // Verifica se o usuário é administrador
     const checkAdminStatus = async () => {
       const isStaff = await AsyncStorage.getItem('is_staff');
-      setIsAdmin(isStaff === 'True'); // Verifica se o valor é 'True'
+      setIsAdmin(isStaff === 'True');
     };
 
     checkAdminStatus();
   }, []);
+
+  const handleRefresh = () => {
+    setRefreshing(true); 
+    loadEquipes();
+  };
 
   const handleOpenCreateEquipeModal = () => {
     if (isAdmin) {
@@ -64,7 +70,7 @@ const Equipes: React.FC<EquipesProps> = ({ navigation }) => {
     setModalVisible(false);
   };
 
-  if (loading) {
+  if (loading && !refreshing) {
     return <ActivityIndicator size="large" color="#0000ff" />;
   }
 
@@ -74,8 +80,8 @@ const Equipes: React.FC<EquipesProps> = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      {isAdmin && ( // Só exibe o botão de criar equipe se o usuário for administrador
-        <Button title="Criar Equipe" onPress={handleOpenCreateEquipeModal} color="orange" />
+      {isAdmin && (
+        <Button title="Criar Equipe" onPress={handleOpenCreateEquipeModal} color="#E16104" />
       )}
       <FlatList
         data={equipes}
@@ -94,8 +100,9 @@ const Equipes: React.FC<EquipesProps> = ({ navigation }) => {
             </View>
           </TouchableOpacity>
         )}
+        refreshing={refreshing} 
+        onRefresh={handleRefresh} 
       />
-    
       <Modal
         visible={modalVisible}
         animationType="slide"
