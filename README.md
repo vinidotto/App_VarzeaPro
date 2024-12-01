@@ -1,4 +1,4 @@
-# **VárzeaPro**
+# **VárzeaPro** ⚽
 
 O **VárzeaPro** é um aplicativo projetado para facilitar a gestão de campeonatos amadores de futebol. Ele permite a organização de torneios, equipes, partidas, proporcionando uma melhor gestão para organizadores e participantes.
 
