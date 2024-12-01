@@ -11,6 +11,8 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
 from pathlib import Path
+from decouple import config
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -20,7 +22,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-lh=15a113nhq2#*e#m7#dkv2g3$&+8+ap*vex-0rqb5g_ou(x6'
+SECRET_KEY = config('SECRET_KEY', default='django-insecure-lh=15a113nhq2#*e#m7#dkv2g3$&+8+ap*vex-0rqb5g_ou(x6')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -102,11 +104,11 @@ WSGI_APPLICATION = 'api.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'varzea_pro',         
-        'USER': 'postgres',       
-        'PASSWORD': 'postgres',  
-        'HOST': 'localhost',             
-        'PORT': '5432',
+        'NAME': config('DB_NAME', default='varzea_pro'),
+        'USER': config('DB_USER', default='postgres'),
+        'PASSWORD': config('DB_PASSWORD', default='postgres'),
+        'HOST': config('DB_HOST', default='localhost'),
+        'PORT': config('DB_PORT', default='5432'),
     }
 }
 

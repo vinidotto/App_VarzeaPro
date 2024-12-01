@@ -3,6 +3,8 @@ import { View, Text, FlatList, ActivityIndicator, StyleSheet, TouchableOpacity, 
 import { fetchEquipes } from '../api';
 import CreateEquipeModal from '../components/CreateEquipeModal'; 
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { BASE_URL } from '@env';
+
 
 type Equipe = {
   id: number;
@@ -20,7 +22,6 @@ type EquipesProps = {
   };
 };
 
-const BASE_URL = 'https://blindly-dominant-akita.ngrok-free.app';
 
 const Equipes: React.FC<EquipesProps> = ({ navigation }) => {
   const [equipes, setEquipes] = useState<Equipe[]>([]);

@@ -1,7 +1,6 @@
 import axios, { AxiosError } from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
-const API_URL = 'https://blindly-dominant-akita.ngrok-free.app/api'; 
+import { API_URL } from '@env';
 
 export type Torneio = {
   nome: string;

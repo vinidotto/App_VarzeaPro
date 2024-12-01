@@ -12,6 +12,9 @@
     "android": {
       "package": "com.anonymous.projetoaula"
     },
-    "newArchEnabled": true
+    "newArchEnabled": true,
+    "plugins": [
+      "expo-font"
+    ]
   }
 }
