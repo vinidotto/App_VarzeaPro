@@ -1,18 +1,18 @@
 import React from 'react';
-import { StyleSheet } from 'react-native';
-import { NavigationContainer } from '@react-navigation/native';
-import { createStackNavigator } from '@react-navigation/stack';
+import { NavigationContainer, DefaultTheme } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { Image } from 'react-native';
-import Login from './src/screens/Login';
-import Register from './src/screens/Register';
-import AddTorneio from './src/screens/AddTorneio';
+import { Ionicons } from '@expo/vector-icons';
+import Login from './src/screens/LoginModern';
+import Register from './src/screens/RegisterModern';
+import AddTorneio from './src/screens/AddTorneioModern';
 import EditTorneio from './src/screens/EditTorneio';
-import DetailsTorneio from './src/screens/DetailsTorneio';
-import Torneios from './src/screens/Torneios';
-import Equipes from './src/screens/Equipes';
-import EquipeDetails from './src/screens/EquipeDetails';
-import UserDetails from './src/screens/UserDetails';  
+import DetailsTorneio from './src/screens/DetailsTorneioModern';
+import Torneios from './src/screens/TorneiosModern';
+import Equipes from './src/screens/EquipesModern';
+import EquipeDetails from './src/screens/EquipeDetailsModern';
+import UserDetails from './src/screens/UserDetailsModern';
+import { colors } from './src/theme';
 
 export type RootStackParamList = {
   Login: undefined;
@@ -31,23 +31,48 @@ export type BottomTabParamList = {
   UserDetails: undefined; 
 };
 
-const Stack = createStackNavigator<RootStackParamList>();
+const Stack = createNativeStackNavigator<RootStackParamList>();
 const BottomTabs = createBottomTabNavigator<BottomTabParamList>();
 
 function BottomTabNavigator() {
   return (
-    <BottomTabs.Navigator initialRouteName="Torneios">
+    <BottomTabs.Navigator
+      initialRouteName="Torneios"
+      screenOptions={({ route }) => ({
+        headerShown: false,
+        tabBarActiveTintColor: colors.primary,
+        tabBarInactiveTintColor: colors.muted,
+        tabBarHideOnKeyboard: true,
+        tabBarStyle: {
+          height: 70,
+          paddingTop: 8,
+          paddingBottom: 10,
+          borderTopWidth: 0,
+          backgroundColor: colors.surface,
+          elevation: 12,
+          shadowColor: '#163A2B',
+          shadowOpacity: 0.1,
+          shadowRadius: 12,
+        },
+        tabBarLabelStyle: {
+          fontSize: 11,
+          fontWeight: '700',
+        },
+        tabBarIcon: ({ color, size }) => {
+          const icon = route.name === 'Torneios'
+            ? 'trophy-outline'
+            : route.name === 'Equipes'
+              ? 'people-outline'
+              : 'person-outline';
+          return <Ionicons name={icon} size={size} color={color} />;
+        },
+      })}
+    >
       <BottomTabs.Screen
         name="Torneios"
         component={Torneios}
         options={{
           title: 'Torneios',
-          tabBarIcon: ({ color, size }) => (
-            <Image
-              source={require('./assets/trofeu.png')}
-              style={{ width: size, height: size, tintColor: color }}
-            />
-          ),
         }}
       />
       <BottomTabs.Screen
@@ -55,12 +80,6 @@ function BottomTabNavigator() {
         component={Equipes}
         options={{
           title: 'Equipes',
-          tabBarIcon: ({ color, size }) => (
-            <Image
-              source={require('./assets/teams.png')}
-              style={{ width: size, height: size, tintColor: color }}
-            />
-          ),
         }}
       />
       <BottomTabs.Screen
@@ -68,12 +87,6 @@ function BottomTabNavigator() {
         component={UserDetails}  
         options={{
           title: 'Perfil',
-          tabBarIcon: ({ color, size }) => (
-            <Image
-              source={require('./assets/user.png')}
-              style={{ width: size, height: size, tintColor: color }}
-            />
-          ),
         }}
       />
     </BottomTabs.Navigator>
@@ -81,18 +94,40 @@ function BottomTabNavigator() {
 };
 
 export default function App() {
+  const navigationTheme = {
+    ...DefaultTheme,
+    colors: {
+      ...DefaultTheme.colors,
+      primary: colors.primary,
+      background: colors.background,
+      card: colors.primaryDark,
+      text: colors.text,
+      border: colors.border,
+    },
+  };
+
   return (
-    <NavigationContainer>
-      <Stack.Navigator initialRouteName="Login">
+    <NavigationContainer theme={navigationTheme}>
+      <Stack.Navigator
+        initialRouteName="Login"
+        screenOptions={{
+          headerStyle: { backgroundColor: colors.primaryDark },
+          headerTintColor: colors.white,
+          headerTitleStyle: { fontWeight: '800' },
+          headerShadowVisible: false,
+          contentStyle: { backgroundColor: colors.background },
+          headerBackTitle: 'Voltar',
+        }}
+      >
         <Stack.Screen
           name="Login"
           component={Login}
-          options={{ title: 'Login' }}
+          options={{ headerShown: false }}
         />
         <Stack.Screen
           name="Register"
           component={Register}
-          options={{ title: 'Registro' }}
+          options={{ headerShown: false }}
         />
         <Stack.Screen
           name="Home"
@@ -123,9 +158,3 @@ export default function App() {
     </NavigationContainer>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-});

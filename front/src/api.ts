@@ -17,17 +17,18 @@ type Equipe = {
 
 
 async function getAuthToken(): Promise<string> {
-  try {
-    const token = await AsyncStorage.getItem('auth_token');
-    if (!token) {
-      throw new Error('Token de autenticação não encontrado');
-    }
-    return token;
-  } catch (error) {
-    console.error('Erro ao obter o token de autenticação:', error);
-    throw error;
+  const token = await AsyncStorage.getItem('auth_token');
+  if (!token) {
+    throw new Error('Token de autenticação não encontrado');
   }
+  return token;
 }
+
+export const clearSession = async () => {
+  await AsyncStorage.multiRemove(['auth_token', 'refresh_token', 'is_staff']);
+};
+
+export const hasAuthToken = async () => Boolean(await AsyncStorage.getItem('auth_token'));
 
 
 export const fetchTorneios = async (search?: string): Promise<Torneio[]> => {
@@ -159,7 +160,8 @@ export const logoffUser = async () => {
   try {
     const refreshToken = await AsyncStorage.getItem('refresh_token');
     if (!refreshToken) {
-      throw new Error('Token de atualização não encontrado');
+      await clearSession();
+      return { detail: 'Sessão local encerrada.' };
     }
 
     const response = await axios.post(
@@ -172,8 +174,7 @@ export const logoffUser = async () => {
       }
     );
 
-    await AsyncStorage.removeItem('auth_token');
-    await AsyncStorage.removeItem('refresh_token');
+    await clearSession();
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error)) {

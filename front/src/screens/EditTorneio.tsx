@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, Button, ActivityIndicator, Alert, StyleSheet } from 'react-native';
 import { RouteProp } from '@react-navigation/native';
-import { StackNavigationProp } from '@react-navigation/stack';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { fetchTorneio, updateTorneio } from '../api';
 
 type RootStackParamList = {
@@ -10,7 +10,7 @@ type RootStackParamList = {
 
 type EditTorneioProps = {
   route: RouteProp<RootStackParamList, 'EditTorneio'>;
-  navigation: StackNavigationProp<RootStackParamList, 'EditTorneio'>;
+  navigation: NativeStackNavigationProp<RootStackParamList, 'EditTorneio'>;
 };
 
 type Torneio = {

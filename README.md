@@ -52,5 +52,18 @@ O **VárzeaPro** busca digitalizar e simplificar a administração de campeonato
 
 Desenvolvido com dedicação para valorizar o futebol amador. ⚽
 
+## Executar com Docker Compose
+
+
+```bash
+docker compose up --build
+```
+
+Após a inicialização:
+- API: `http://localhost:8000/api/`
+- Expo/Metro: `http://localhost:8081`
+- PostgreSQL: `localhost:5432`
+
+Para usar o app em um celular físico, altere `API_URL` no `.env` da raiz para o IP da máquina na rede local, por exemplo `http://192.168.0.10:8000/api`, e reinicie o Compose.
 
 

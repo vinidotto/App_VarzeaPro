@@ -3,7 +3,6 @@
     "name": "projeto-aula",
     "slug": "projeto-aula",
     "version": "1.0.0",
-    "sdkVersion": "51.0.0",
     "platforms": [
       "ios",
       "android",
@@ -12,9 +11,9 @@
     "android": {
       "package": "com.anonymous.projetoaula"
     },
-    "newArchEnabled": true,
     "plugins": [
-      "expo-font"
+      "expo-font",
+      "@react-native-community/datetimepicker"
     ]
   }
 }

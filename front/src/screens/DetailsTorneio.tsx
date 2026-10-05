@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, ActivityIndicator, Alert, Button, StyleSheet, ImageBackground } from 'react-native';
 import { RouteProp } from '@react-navigation/native';
-import { StackNavigationProp } from '@react-navigation/stack';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { fetchTorneio } from '../api';
 import PartidasList from '../components/CardConfronto';
 import CreateConfrontoModal from '../components/CreateConfrontoModal';
@@ -21,7 +21,7 @@ type Torneio = {
 
 type DetailsTorneioProps = {
   route: RouteProp<RootStackParamList, 'DetailsTorneio'>;
-  navigation: StackNavigationProp<RootStackParamList, 'DetailsTorneio'>;
+  navigation: NativeStackNavigationProp<RootStackParamList, 'DetailsTorneio'>;
 };
 
 const DetailsTorneio: React.FC<DetailsTorneioProps> = ({ route }) => {
